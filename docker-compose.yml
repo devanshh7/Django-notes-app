@@ -18,7 +18,10 @@ services:
     command: >
       sh -c "
       echo 'Waiting for MySQL...' &&
-      sleep 40 &&
+      until mysql -h db -uroot -proot -e 'select 1' >/dev/null 2>&1; do
+      sleep 3
+      done &&
+      echo 'MySQL is up' &&
       python manage.py migrate --noinput &&
       gunicorn notesapp.wsgi --bind 0.0.0.0:8000
       "
