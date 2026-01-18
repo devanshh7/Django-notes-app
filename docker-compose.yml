@@ -16,15 +16,15 @@ services:
     pull_policy: never
     container_name: django_cont
     command: >
-  sh -c "
-  echo 'Waiting for MySQL...' &&
-  until mysql -h db -uroot -proot -e 'select 1' >/dev/null 2>&1; do
-    sleep 3
-  done &&
-  echo 'MySQL is ready' &&
-  python manage.py migrate --noinput &&
-  gunicorn notesapp.wsgi --bind 0.0.0.0:8000
-  "
+      sh -c "
+      echo 'Waiting for MySQL...' &&
+      until mysql -h db -uroot -proot -e 'select 1' >/dev/null 2>&1; do
+      sleep 3
+      done &&
+      echo 'MySQL is ready' &&
+      python manage.py migrate --noinput &&
+      gunicorn notesapp.wsgi --bind 0.0.0.0:8000
+      "
 
     env_file:
       - .env
