@@ -14,9 +14,14 @@ services:
     image: notes-app:latest
     pull_policy: never
     container_name: django_cont
-    command: sh -c "python manage.py migrate --noinput && gunicorn notesapp.wsgi --bind 0.0.0.0:8000"
+    command: >
+      sh -c "
+      sleep 30 &&
+      python manage.py migrate --noinput &&
+      gunicorn notesapp.wsgi --bind 0.0.0.0:8000
+      "
     env_file:
-      - ".env"
+      - .env
     depends_on:
       db:
         condition: service_healthy
@@ -31,38 +36,25 @@ services:
       - notes-app-nw
 
   db:
-  image: mysql:8
-  container_name: db_cont
+    image: mysql:8
+    container_name: db_cont
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -proot || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 15
+      start_period: 90s
+    restart: always
+    networks:
+      - notes-app-nw
 
-  environment:
-    MYSQL_ROOT_PASSWORD: root
-    MYSQL_DATABASE: test_db
+volumes:
+  mysql_data:
 
-  volumes:
-    - mysql_data:/var/lib/mysql
-
-  restart: always
-  networks:
-    - notes-app-nw
-
-  #db:
-  #  image: mysql:8
-  #  container_name: db_cont
-  #  environment:
-  #    MYSQL_ROOT_PASSWORD: root
-  #    MYSQL_DATABASE: test_db
-  #  volumes:
-  #    - ./data/mysql/db:/var/lib/mysql
-  #  healthcheck:
-  #    test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
-  #    interval: 10s
-  #    timeout: 5s
-  #    timeout: 5s
-  #    retries: 10
-  #    start_period: 60s
-  #  restart: always
-  #  networks:
-  #    - notes-app-nw
-
-#networks:
-#  notes-app-nw:
+networks:
+  notes-app-nw:
