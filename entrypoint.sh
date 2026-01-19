@@ -3,7 +3,7 @@ set -e
 
 echo "Waiting for MySQL..."
 
-until mysqladmin ping -h db -uroot -proot --silent; do
+until mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USER" -p"$DB_PASSWORD" --silent; do
   sleep 3
 done
 
