@@ -5,6 +5,9 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: test_db
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --sql-mode=""
     volumes:
       - mysql_data:/var/lib/mysql
     restart: always
