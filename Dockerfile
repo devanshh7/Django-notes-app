@@ -8,7 +8,7 @@ RUN apt-get update \
     && apt-get install -y \
        gcc \
        default-libmysqlclient-dev \
-       mysql-client \
+       default-mysql-client \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install mysqlclient
