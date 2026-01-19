@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   db:
     image: mysql:8.0
@@ -5,10 +7,15 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: test_db
-    ports:
-      - "3306:3306"
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     restart: always
     networks:
       - notes-app-nw
@@ -17,10 +24,21 @@ services:
     image: notes-app:latest
     pull_policy: never
     container_name: django_cont
+    command: >
+      sh -c "
+      echo 'Waiting for MySQL...' &&
+      until mysqladmin ping -h db -uroot -proot --silent; do
+        sleep 3;
+      done &&
+      echo 'MySQL is ready' &&
+      python manage.py migrate --noinput &&
+      gunicorn notesapp.wsgi:application --bind 0.0.0.0:8000
+      "
     env_file:
       - .env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: always
     networks:
       - notes-app-nw
