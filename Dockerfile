@@ -15,6 +15,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . /app/backend
 
+COPY entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+
 EXPOSE 8000
 #RUN python manage.py migrate
 #RUN python manage.py makemigrations
